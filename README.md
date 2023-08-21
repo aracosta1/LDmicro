@@ -1,3 +1,9 @@
+# Notes on fork
+This fork is made to create a simple and cut down version of LDMicro to generate interpretable code to be run on a PLC interpreter running on various custom boards.
+Most of the special instructions are not supported on the interpreter, so for clarity they are hidden from the menus. Also the possibility to generate code for the microcontroller is hidden.
+
+All functionality are only hidden and not removed, so they can reactivated if needed.
+
 # LDmicro 
 LDmicro is a program for creating, developing and editing [ladder diagrams](https://en.wikipedia.org/wiki/Ladder_logic),
 simulation of a ladder diagram work
