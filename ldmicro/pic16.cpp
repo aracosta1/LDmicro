@@ -4184,11 +4184,11 @@ static void CompileFromIntermediate(bool topLevel)
             }
 
 #ifdef NEW_CMP
-            case INT_IF_NEQ:
-                Comment("INT_IF_NEQ");
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
+                Comment("INT_IF_VARIABLE_NEQ_VARIABLE");
                 goto cmp1;
-            case INT_IF_EQU:
-                Comment("INT_IF_EQU");
+            case INT_IF_VARIABLE_EQU_VARIABLE:
+                Comment("INT_IF_VARIABLE_EQU_VARIABLE");
                 goto cmp1;
             cmp1 : {
                 CheckSovNames(a);
@@ -4206,11 +4206,11 @@ static void CompileFromIntermediate(bool topLevel)
                     Instruction(OP_MOVF, addrA + i, DEST_W);
                     Instruction(OP_SUBWF, addrB + i, DEST_W);
                     switch(a->op) {
-                        case INT_IF_NEQ: // ELEM_EQU
+                        case INT_IF_VARIABLE_NEQ_VARIABLE: // ELEM_EQU
                             IfBitClear(REG_STATUS, STATUS_Z);
                             Instruction(OP_GOTO, ifThen); // Z=0, A!=B
                             break;
-                        case INT_IF_EQU: // ELEM_NEQ
+                        case INT_IF_VARIABLE_EQU_VARIABLE: // ELEM_NEQ
                             IfBitClear(REG_STATUS, STATUS_Z);
                             Instruction(OP_GOTO, ifEnd); // Z=0, A!=B
                             break;
@@ -4219,7 +4219,7 @@ static void CompileFromIntermediate(bool topLevel)
                     }
                 }
                 switch(a->op) {
-                    case INT_IF_NEQ:                 // ELEM_EQU
+                    case INT_IF_VARIABLE_NEQ_VARIABLE:                 // ELEM_EQU
                         Instruction(OP_GOTO, ifEnd); // Z=1, A==B
                         break;
                 }
@@ -4230,20 +4230,20 @@ static void CompileFromIntermediate(bool topLevel)
                 break;
             }
 
-            case INT_IF_GEQ:
-                Comment("INT_IF_GEQ %s %s", a->name1.c_str(), a->name2.c_str());
+            case INT_IF_VARIABLE_GEQ_VARIABLE:
+                Comment("INT_IF_VARIABLE_GEQ_VARIABLE %s %s", a->name1.c_str(), a->name2.c_str());
                 goto cmp2;
             // (A>=B) equal to (A-B), C=0
-            case INT_IF_LEQ:
-                Comment("INT_IF_LEQ %s %s", a->name1.c_str(), a->name2.c_str());
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
+                Comment("INT_IF_VARIABLE_LEQ_VARIABLE %s %s", a->name1.c_str(), a->name2.c_str());
                 goto cmp2;
             // (A<=B) equal to (B-A), C=0
-            case INT_IF_LES:
+            case INT_IF_VARIABLE_LES_VARIABLE:
                 Comment("INT_IF_LES %s %s", a->name1.c_str(), a->name2.c_str());
                 goto cmp2;
             // (A<B) equal to !(A>=B) equal to (A-B), C=1
-            case INT_IF_GRT:
-                Comment("INT_IF_GRT %s %s", a->name1.c_str(), a->name2.c_str());
+            case INT_IF_VARIABLE_GRT_VARIABLE:
+                Comment("INT_IF_VARIABLE_GRT_VARIABLE %s %s", a->name1.c_str(), a->name2.c_str());
                 goto cmp2;
             // (A>B) equal to !(A<=B) equal to (B-A), C=1
             cmp2 : {
@@ -4258,14 +4258,14 @@ static void CompileFromIntermediate(bool topLevel)
                 ADDR_T addrA;
                 ADDR_T addrB;
                 switch(a->op) {
-                    case INT_IF_GEQ: // op1 - op2
-                    case INT_IF_LES:
+                    case INT_IF_VARIABLE_GEQ_VARIABLE: // op1 - op2
+                    case INT_IF_VARIABLE_LES_VARIABLE:
                         // don't change argument a->name1 !!!
                         addrB = CopyArgToReg(true, Scratch0, sov, a->name1, true);
                         addrA = CopyArgToReg(false, Scratch4, sov, a->name2, true);
                         break;
-                    case INT_IF_LEQ: // op2 - op1
-                    case INT_IF_GRT:
+                    case INT_IF_VARIABLE_LEQ_VARIABLE: // op2 - op1
+                    case INT_IF_VARIABLE_GRT_VARIABLE:
                         // don't change argument a->name2 !!!
                         addrB = CopyArgToReg(true, Scratch0, sov, a->name2, true);
                         addrA = CopyArgToReg(false, Scratch4, sov, a->name1, true);
@@ -4288,12 +4288,12 @@ otherwise the result was zero or greater.
 */
                 XorBit(addrO, bitO, addrB + sov - 1, 7);
                 switch(a->op) {
-                    case INT_IF_GEQ:
-                    case INT_IF_LEQ:
+                    case INT_IF_VARIABLE_GEQ_VARIABLE:
+                    case INT_IF_VARIABLE_LEQ_VARIABLE:
                         IfBitClear(addrO, bitO);
                         break;
-                    case INT_IF_LES:
-                    case INT_IF_GRT:
+                    case INT_IF_VARIABLE_LES_VARIABLE:
+                    case INT_IF_VARIABLE_GRT_VARIABLE:
                         IfBitSet(addrO, bitO);
                         break;
                     default:

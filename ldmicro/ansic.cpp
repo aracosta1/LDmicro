@@ -1000,12 +1000,12 @@ static void GenerateDeclarations(FILE *f, FILE *fh, FILE *flh)
                 intVar2 = IntCode[i].name2.c_str();
                 break;
 #ifdef NEW_CMP
-            case INT_IF_EQU:
-            case INT_IF_NEQ:
-            case INT_IF_LES:
-            case INT_IF_GRT:
-            case INT_IF_LEQ:
-            case INT_IF_GEQ:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
+            case INT_IF_VARIABLE_LES_VARIABLE:
+            case INT_IF_VARIABLE_GRT_VARIABLE:
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
+            case INT_IF_VARIABLE_GEQ_VARIABLE:
                 intVar1 = IntCode[i].name1.c_str();
                 intVar2 = IntCode[i].name2.c_str();
                 break;
@@ -1376,32 +1376,32 @@ static void GenerateAnsiC(FILE *f, int begin, int end)
                 break;
 
 #ifdef NEW_CMP
-            case INT_IF_EQU:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
                 fprintf(f, "if(%s == %s) {\n", MapSym(IntCode[i].name1, ASINT), MapSym(IntCode[i].name2, ASINT));
                 indent++;
                 break;
 
-            case INT_IF_NEQ:
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
                 fprintf(f, "if(%s != %s) {\n", MapSym(IntCode[i].name1, ASINT), MapSym(IntCode[i].name2, ASINT));
                 indent++;
                 break;
 
-            case INT_IF_LES:
+            case INT_IF_VARIABLE_LES_VARIABLE:
                 fprintf(f, "if(%s < %s) {\n", MapSym(IntCode[i].name1, ASINT), MapSym(IntCode[i].name2, ASINT));
                 indent++;
                 break;
 
-            case INT_IF_GRT:
+            case INT_IF_VARIABLE_GRT_VARIABLE:
                 fprintf(f, "if(%s > %s) {\n", MapSym(IntCode[i].name1, ASINT), MapSym(IntCode[i].name2, ASINT));
                 indent++;
                 break;
 
-            case INT_IF_LEQ:
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
                 fprintf(f, "if(%s <= %s) {\n", MapSym(IntCode[i].name1, ASINT), MapSym(IntCode[i].name2, ASINT));
                 indent++;
                 break;
 
-            case INT_IF_GEQ:
+            case INT_IF_VARIABLE_GEQ_VARIABLE:
                 fprintf(f, "if(%s >= %s) {\n", MapSym(IntCode[i].name1, ASINT), MapSym(IntCode[i].name2, ASINT));
                 indent++;
                 break;

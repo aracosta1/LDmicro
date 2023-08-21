@@ -441,12 +441,12 @@ static void GenerateDeclarations(FILE *f, FILE *fu, FILE *fi, FILE *fr, FILE *fv
 #endif
 
 #ifdef NEW_CMP
-            case INT_IF_EQU:
-            case INT_IF_NEQ:
-            case INT_IF_LES:
-            case INT_IF_GRT:
-            case INT_IF_LEQ:
-            case INT_IF_GEQ:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
+            case INT_IF_VARIABLE_LES_VARIABLE:
+            case INT_IF_VARIABLE_GRT_VARIABLE:
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
+            case INT_IF_VARIABLE_GEQ_VARIABLE:
                 if(!IsNumber(IntCode[i].name1))
                     intVar1 = IntCode[i].name1.c_str();
                 if(!IsNumber(IntCode[i].name2))
@@ -746,14 +746,14 @@ static void GenerateSourceCode(FILE *f, int begin, int end)
                 break;
 
 #ifdef NEW_CMP
-            case INT_IF_NEQ:
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
                 fprintf(f, "if %s <> %s then begin\n", MapSym(IntCode[i].name1, ASINT), MapSym(IntCode[i].name2, ASINT));
                 indent++;
                 break;
 #endif
 
 #ifdef NEW_CMP
-            case INT_IF_LES:
+            case INT_IF_VARIABLE_LES_VARIABLE:
                 fprintf(f, "if %s < %s then begin\n", MapSym(IntCode[i].name1, ASINT), IntCode[i].name2.c_str());
 #else
             case INT_IF_VARIABLE_LES_LITERAL:
@@ -763,7 +763,7 @@ static void GenerateSourceCode(FILE *f, int begin, int end)
                 break;
 
 #ifdef NEW_CMP
-            case INT_IF_EQU:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
 #else
             case INT_IF_VARIABLE_EQUALS_VARIABLE:
 #endif
@@ -772,7 +772,7 @@ static void GenerateSourceCode(FILE *f, int begin, int end)
                 break;
 
 #ifdef NEW_CMP
-            case INT_IF_GRT:
+            case INT_IF_VARIABLE_GRT_VARIABLE:
 #else
             case INT_IF_VARIABLE_GRT_VARIABLE:
 #endif
@@ -781,12 +781,12 @@ static void GenerateSourceCode(FILE *f, int begin, int end)
                 break;
 
 #ifdef NEW_CMP
-            case INT_IF_LEQ:
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
                 fprintf(f, "if %s <= %s then begin\n", MapSym(IntCode[i].name1, ASINT), MapSym(IntCode[i].name2, ASINT));
                 indent++;
                 break;
 
-            case INT_IF_GEQ:
+            case INT_IF_VARIABLE_GEQ_VARIABLE:
                 fprintf(f, "if %s >= %s then begin\n", MapSym(IntCode[i].name1, ASINT), MapSym(IntCode[i].name2, ASINT));
                 indent++;
                 break;

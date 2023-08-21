@@ -160,22 +160,23 @@
 #define INT_IF_BIT_CLEAR                        51
 #define INT_IF_BIT_EQU_BIT                      58
 #define INT_IF_BIT_NEQ_BIT                      59
-#ifndef NEW_CMP
-#define INT_IF_VARIABLE_LES_LITERAL             52
-#define INT_IF_VARIABLE_EQUALS_VARIABLE         53
-#define INT_IF_VARIABLE_GRT_VARIABLE            54
+#ifdef NEW_CMP
+#define INT_IF_VARIABLE_EQU_LITERAL             52
+#define INT_IF_VARIABLE_NEQ_LITERAL             53
+#define INT_IF_VARIABLE_LES_LITERAL             54
+#define INT_IF_VARIABLE_LEQ_LITERAL             55
+#define INT_IF_VARIABLE_GRT_LITERAL             56
+#define INT_IF_VARIABLE_GEQ_LITERAL             57
 #endif
 #ifdef NEW_CMP
-#define INT_IF_EQU                              60
-#define INT_IF_NEQ                              61
-#define INT_IF_LES                              62
-#define INT_IF_GRT                              63
-#define INT_IF_LEQ                              64
-#define INT_IF_GEQ                              65
-#define INT_IF_VARIABLE_LES_LITERAL             INT_IF_LES
-#define INT_IF_VARIABLE_EQUALS_VARIABLE         INT_IF_EQU
-#define INT_IF_VARIABLE_GRT_VARIABLE            INT_IF_GRT
+#define INT_IF_VARIABLE_EQU_VARIABLE            62
+#define INT_IF_VARIABLE_NEQ_VARIABLE            63
+#define INT_IF_VARIABLE_LES_VARIABLE            64
+#define INT_IF_VARIABLE_LEQ_VARIABLE            65
+#define INT_IF_VARIABLE_GRT_VARIABLE            66
+#define INT_IF_VARIABLE_GEQ_VARIABLE            67
 #endif
+
 #define INT_IF_GROUP_END                        70
 #define INT_IF_GROUP(x) (((x) >= INT_IF_GROUP_BEGIN) && ((x) <= INT_IF_GROUP_END))
 

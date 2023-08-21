@@ -500,33 +500,63 @@ void IntDumpListing(const char *outFile)
 #endif
 
 #ifdef NEW_CMP
-            case INT_IF_GRT:
+            case INT_IF_VARIABLE_GRT_VARIABLE:
                 fprintf(f, "if '%s' > '%s' {", IntCode[i].name1.c_str(), IntCode[i].name2.c_str());
                 indent++;
                 break;
 
-            case INT_IF_GEQ:
+            case INT_IF_VARIABLE_GEQ_VARIABLE:
                 fprintf(f, "if '%s' >= '%s' {", IntCode[i].name1.c_str(), IntCode[i].name2.c_str());
                 indent++;
                 break;
 
-            case INT_IF_LES:
+            case INT_IF_VARIABLE_LES_VARIABLE:
                 fprintf(f, "if '%s' < '%s' {", IntCode[i].name1.c_str(), IntCode[i].name2.c_str());
                 indent++;
                 break;
 
-            case INT_IF_LEQ:
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
                 fprintf(f, "if '%s' <= '%s' {", IntCode[i].name1.c_str(), IntCode[i].name2.c_str());
                 indent++;
                 break;
 
-            case INT_IF_NEQ:
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
                 fprintf(f, "if '%s' != '%s' {", IntCode[i].name1.c_str(), IntCode[i].name2.c_str());
                 indent++;
                 break;
 
-            case INT_IF_EQU:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
                 fprintf(f, "if '%s' == '%s' {", IntCode[i].name1.c_str(), IntCode[i].name2.c_str());
+                indent++;
+                break;
+
+            case INT_IF_VARIABLE_GRT_LITERAL:
+                fprintf(f, "if '%s' > %d {", IntCode[i].name1.c_str(), IntCode[i].literal1);
+                indent++;
+                break;
+
+            case INT_IF_VARIABLE_GEQ_LITERAL:
+                fprintf(f, "if '%s' >= %d {", IntCode[i].name1.c_str(), IntCode[i].literal1);
+                indent++;
+                break;
+
+            case INT_IF_VARIABLE_LES_LITERAL:
+                fprintf(f, "if '%s' < %d {", IntCode[i].name1.c_str(), IntCode[i].literal1);
+                indent++;
+                break;
+
+            case INT_IF_VARIABLE_LEQ_LITERAL:
+                fprintf(f, "if '%s' <= %d {", IntCode[i].name1.c_str(), IntCode[i].literal1);
+                indent++;
+                break;
+
+            case INT_IF_VARIABLE_NEQ_LITERAL:
+                fprintf(f, "if '%s' != %d {", IntCode[i].name1.c_str(), IntCode[i].literal1);
+                indent++;
+                break;
+
+            case INT_IF_VARIABLE_EQU_LITERAL:
+                fprintf(f, "if '%s' == %d {", IntCode[i].name1.c_str(), IntCode[i].literal1);
                 indent++;
                 break;
 #endif
@@ -783,7 +813,7 @@ static void _Op(int l, const char *f, const char *args, int op, const char *name
         intOp.name6 = name6;
     intOp.literal1 = lit;
 #ifdef NEW_CMP
-    if((op == INT_IF_LES) || (op == INT_IF_VARIABLE_LES_LITERAL))
+    if((op == INT_IF_VARIABLE_LES_VARIABLE) || (op == INT_IF_VARIABLE_LES_LITERAL))
         if(!name2) {
             sprintf(intOp.name2.data(), "%d", lit);
         }
@@ -1870,7 +1900,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 int32_t period = TimerPeriod(leaf);
                 Op(INT_IF_VARIABLE_LES_LITERAL, leaf->d.timer.name, period);
               } else {
-                Op(INT_IF_LES, leaf->d.timer.name, leaf->d.timer.delay);
+                Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.timer.name, leaf->d.timer.delay);
               }
                   Op(INT_INCREMENT_VARIABLE, leaf->d.timer.name);
                 Op(INT_ELSE);
@@ -1932,7 +1962,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 int32_t period = TimerPeriod(leaf);
                 Op(INT_IF_VARIABLE_LES_LITERAL, leaf->d.timer.name, period);
               } else {
-                Op(INT_IF_LES, leaf->d.timer.name, leaf->d.timer.delay);
+                Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.timer.name, leaf->d.timer.delay);
               }
                   Op(INT_CLEAR_BIT, stateInOut);               //1
                   Op(INT_INCREMENT_VARIABLE, leaf->d.timer.name); //2
@@ -1999,7 +2029,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 int32_t period = TimerPeriod(leaf);
                 Op(INT_IF_VARIABLE_LES_LITERAL, leaf->d.timer.name, period);
               } else {
-                Op(INT_IF_LES, leaf->d.timer.name, leaf->d.timer.delay);
+                Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.timer.name, leaf->d.timer.delay);
               }
                   Op(INT_INCREMENT_VARIABLE, leaf->d.timer.name);
                   Op(INT_SET_BIT, stateInOut);
@@ -2060,9 +2090,9 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
             Op(INT_IF_BIT_SET, store);
               if(IsNumber(leaf->d.timer.delay)) {
                 int32_t period = TimerPeriod(leaf);
-                Op(INT_IF_LES, leaf->d.timer.name, period);
+                Op(INT_IF_VARIABLE_LES_LITERAL, leaf->d.timer.name, period);
               } else {
-                Op(INT_IF_LES, leaf->d.timer.name, leaf->d.timer.delay);
+                Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.timer.name, leaf->d.timer.delay);
               }
                   Op(INT_INCREMENT_VARIABLE, leaf->d.timer.name);
                   Op(INT_SET_BIT, stateInOut);
@@ -2115,9 +2145,9 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
             Op(INT_IF_BIT_SET, store);
               if(IsNumber(leaf->d.timer.delay)) {
                 int32_t period = TimerPeriod(leaf);
-                Op(INT_IF_LES, leaf->d.timer.name, period);
+                Op(INT_IF_VARIABLE_LES_LITERAL, leaf->d.timer.name, period);
               } else {
-                Op(INT_IF_LES, leaf->d.timer.name, leaf->d.timer.delay);
+                Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.timer.name, leaf->d.timer.delay);
               }
                   Op(INT_INCREMENT_VARIABLE, leaf->d.timer.name);
                   Op(INT_CLEAR_BIT, stateInOut);
@@ -2158,7 +2188,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 Op(INT_IF_BIT_SET, stateInOut);
                   Op(INT_IF_BIT_CLEAR, storeName);
                     Op(INT_SET_BIT, storeName);
-                      Op(INT_IF_LES, leaf->d.counter.name, leaf->d.counter.max);
+                      Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                         Op(INT_INCREMENT_VARIABLE, leaf->d.counter.name);
                       Op(INT_END_IF);
                   Op(INT_END_IF);
@@ -2169,7 +2199,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 Op(INT_IF_BIT_CLEAR, stateInOut);
                   Op(INT_IF_BIT_SET, storeName);
                     Op(INT_CLEAR_BIT, storeName);
-                      Op(INT_IF_LES, leaf->d.counter.name, leaf->d.counter.max);
+                      Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                         Op(INT_INCREMENT_VARIABLE, leaf->d.counter.name);
                       Op(INT_END_IF);
                   Op(INT_END_IF);
@@ -2178,19 +2208,19 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 Op(INT_END_IF);
             } else if(leaf->d.counter.inputKind == '-') {
                 Op(INT_IF_BIT_SET, stateInOut);
-                  Op(INT_IF_LES, leaf->d.counter.name, leaf->d.counter.max);
+                  Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                     Op(INT_INCREMENT_VARIABLE, leaf->d.counter.name);
                   Op(INT_END_IF);
                 Op(INT_END_IF);
             } else if(leaf->d.counter.inputKind == 'o') {
                 Op(INT_IF_BIT_CLEAR, stateInOut);
-                  Op(INT_IF_LES, leaf->d.counter.name, leaf->d.counter.max);
+                  Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                     Op(INT_INCREMENT_VARIABLE, leaf->d.counter.name);
                   Op(INT_END_IF);
                 Op(INT_END_IF);
             } else oops();
 
-            Op(INT_IF_LES, leaf->d.counter.name, leaf->d.counter.max);
+            Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
               Op(INT_CLEAR_BIT, stateInOut);
             Op(INT_ELSE);
               Op(INT_SET_BIT, stateInOut);
@@ -2219,7 +2249,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 Op(INT_IF_BIT_SET, stateInOut);
                   Op(INT_IF_BIT_CLEAR, storeName);
                     Op(INT_SET_BIT, storeName);
-                    Op(INT_IF_GRT, leaf->d.counter.name, leaf->d.counter.max);
+                    Op(INT_IF_VARIABLE_GRT_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                       Op(INT_DECREMENT_VARIABLE, leaf->d.counter.name);
                     Op(INT_END_IF);
                   Op(INT_END_IF);
@@ -2230,7 +2260,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 Op(INT_IF_BIT_CLEAR, stateInOut);
                   Op(INT_IF_BIT_SET, storeName);
                     Op(INT_CLEAR_BIT, storeName);
-                    Op(INT_IF_GRT, leaf->d.counter.name, leaf->d.counter.max);
+                    Op(INT_IF_VARIABLE_GRT_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                       Op(INT_DECREMENT_VARIABLE, leaf->d.counter.name);
                     Op(INT_END_IF);
                   Op(INT_END_IF);
@@ -2239,19 +2269,19 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 Op(INT_END_IF);
             } else if(leaf->d.counter.inputKind == '-') {
                 Op(INT_IF_BIT_SET, stateInOut);
-                  Op(INT_IF_GRT, leaf->d.counter.name, leaf->d.counter.max);
+                  Op(INT_IF_VARIABLE_GRT_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                     Op(INT_DECREMENT_VARIABLE, leaf->d.counter.name);
                   Op(INT_END_IF);
                 Op(INT_END_IF);
             } else if(leaf->d.counter.inputKind == 'o') {
                 Op(INT_IF_BIT_CLEAR, stateInOut);
-                  Op(INT_IF_GRT, leaf->d.counter.name, leaf->d.counter.max);
+                  Op(INT_IF_VARIABLE_GRT_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                     Op(INT_DECREMENT_VARIABLE, leaf->d.counter.name);
                   Op(INT_END_IF);
                 Op(INT_END_IF);
             } else oops();
 
-            Op(INT_IF_GRT, leaf->d.counter.name, leaf->d.counter.max);
+            Op(INT_IF_VARIABLE_GRT_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
               Op(INT_SET_BIT, stateInOut);
             Op(INT_ELSE);
               Op(INT_CLEAR_BIT, stateInOut);
@@ -2286,7 +2316,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                   //Use max as min, and init as max
                   // -5 --> -10
                   // ^init  ^max
-                  Op(INT_IF_LES, leaf->d.counter.name, leaf->d.counter.max);
+                  Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                     OpSetVar(leaf->d.counter.name, leaf->d.counter.init);
                     Op(INT_SET_BIT, stateInOut); // overload impulse
                   Op(INT_END_IF);
@@ -2300,7 +2330,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                   Op(INT_CLEAR_BIT, storeName);
                   Op(INT_DECREMENT_VARIABLE, leaf->d.counter.name);
 
-                  Op(INT_IF_LES, leaf->d.counter.name, leaf->d.counter.max);
+                  Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                     OpSetVar(leaf->d.counter.name, leaf->d.counter.init);
                     Op(INT_SET_BIT, stateInOut); // overload impulse
                   Op(INT_END_IF);
@@ -2313,7 +2343,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
               Op(INT_IF_BIT_SET, stateInOut);
                 Op(INT_DECREMENT_VARIABLE, leaf->d.counter.name);
 
-                Op(INT_IF_LES, leaf->d.counter.name, leaf->d.counter.max);
+                Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                   OpSetVar(leaf->d.counter.name, leaf->d.counter.init);
                   // overload impulse
                 Op(INT_ELSE);
@@ -2324,7 +2354,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
               Op(INT_IF_BIT_CLEAR, stateInOut);
                 Op(INT_DECREMENT_VARIABLE, leaf->d.counter.name);
 
-                Op(INT_IF_LES, leaf->d.counter.name, leaf->d.counter.max);
+                Op(INT_IF_VARIABLE_LES_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                   OpSetVar(leaf->d.counter.name, leaf->d.counter.init);
                   Op(INT_SET_BIT, stateInOut); // overload impulse
                 Op(INT_END_IF);
@@ -2359,7 +2389,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                   Op(INT_SET_BIT, storeName); // This line1
                   Op(INT_INCREMENT_VARIABLE, leaf->d.counter.name);
 
-                  Op(INT_IF_GRT, leaf->d.counter.name, leaf->d.counter.max);
+                  Op(INT_IF_VARIABLE_GRT_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                     OpSetVar(leaf->d.counter.name, leaf->d.counter.init);
                     Op(INT_SET_BIT, stateInOut); // overload impulse
                   Op(INT_END_IF);
@@ -2374,7 +2404,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                   Op(INT_CLEAR_BIT, storeName);
                   Op(INT_INCREMENT_VARIABLE, leaf->d.counter.name);
 
-                  Op(INT_IF_GRT, leaf->d.counter.name, leaf->d.counter.max);
+                  Op(INT_IF_VARIABLE_GRT_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                     OpSetVar(leaf->d.counter.name, leaf->d.counter.init);
                     Op(INT_SET_BIT, stateInOut); // overload impulse
                   Op(INT_END_IF);
@@ -2387,7 +2417,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
               Op(INT_IF_BIT_SET, stateInOut);
                 Op(INT_INCREMENT_VARIABLE, leaf->d.counter.name);
 
-                Op(INT_IF_GRT, leaf->d.counter.name, leaf->d.counter.max);
+                Op(INT_IF_VARIABLE_GRT_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                   OpSetVar(leaf->d.counter.name, leaf->d.counter.init);
                   // overload impulse
                 Op(INT_ELSE);
@@ -2398,7 +2428,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
               Op(INT_IF_BIT_CLEAR, stateInOut);
                 Op(INT_INCREMENT_VARIABLE, leaf->d.counter.name);
 
-                Op(INT_IF_GRT, leaf->d.counter.name, leaf->d.counter.max);
+                Op(INT_IF_VARIABLE_GRT_VARIABLE, leaf->d.counter.name, leaf->d.counter.max);
                   OpSetVar(leaf->d.counter.name, leaf->d.counter.init);
                   Op(INT_SET_BIT, stateInOut); // overload impulse
                 Op(INT_END_IF);
@@ -2557,15 +2587,31 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
         #ifdef NEW_CMP
         {
         int intOp;
-        case ELEM_GRT: intOp=INT_IF_LEQ; Comment(3, "ELEM_GRT"); goto cmp;
-        case ELEM_GEQ: intOp=INT_IF_LES; Comment(3, "ELEM_GEQ"); goto cmp;
-        case ELEM_LES: intOp=INT_IF_GEQ; Comment(3, "ELEM_LES"); goto cmp;
-        case ELEM_LEQ: intOp=INT_IF_GRT; Comment(3, "ELEM_LEQ"); goto cmp;
-        case ELEM_NEQ: intOp=INT_IF_EQU; Comment(3, "ELEM_NEQ"); goto cmp;
-        case ELEM_EQU: intOp=INT_IF_NEQ; Comment(3, "ELEM_EQU"); goto cmp;
+        case ELEM_GRT: 
+                intOp=INT_IF_VARIABLE_LEQ_VARIABLE; 
+            Comment(3, "ELEM_GRT"); 
+            goto cmp;
+        case ELEM_GEQ: 
+            if(IsNumber(leaf->d.cmp.op2)) {
+                //int32_t period = TimerPeriod(leaf);
+                intOp=INT_IF_VARIABLE_LEQ_LITERAL; 
+            } else {
+                intOp=INT_IF_VARIABLE_LES_VARIABLE; 
+            }
+            Comment(3, "ELEM_GEQ"); 
+            goto cmp;
+        case ELEM_LES: intOp=INT_IF_VARIABLE_GEQ_VARIABLE; Comment(3, "ELEM_LES"); goto cmp;
+        case ELEM_LEQ: intOp=INT_IF_VARIABLE_GRT_VARIABLE; Comment(3, "ELEM_LEQ"); goto cmp;
+        case ELEM_NEQ: intOp=INT_IF_VARIABLE_EQU_VARIABLE; Comment(3, "ELEM_NEQ"); goto cmp;
+        case ELEM_EQU: intOp=INT_IF_VARIABLE_NEQ_VARIABLE; Comment(3, "ELEM_EQU"); goto cmp;
         cmp: {
             Op(INT_IF_BIT_SET, stateInOut);
+            if(IsNumber(leaf->d.cmp.op2)) {
+                //int32_t value = ;
+                Op(intOp, leaf->d.cmp.op1, CheckMakeNumber(leaf->d.cmp.op2));
+            } else {
                 Op(intOp, leaf->d.cmp.op1, leaf->d.cmp.op2);
+            }
                     Op(INT_CLEAR_BIT, stateInOut);
                 Op(INT_END_IF);
             Op(INT_END_IF);
@@ -2825,7 +2871,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 int  sovElement = 0;
                 /**/
                 Op(INT_SET_VARIABLE_TO_LITERAL, "$scratch", DEGREE_CHAR);
-                Op(INT_IF_VARIABLE_EQUALS_VARIABLE, Xseg, "$scratch");
+                Op(INT_IF_VARIABLE_EQU_VARIABLE, Xseg, "$scratch");
                   Op(INT_SET_VARIABLE_TO_LITERAL, Xseg, (int32_t)deg);
                 Op(INT_ELSE);
                   Op(INT_IF_VARIABLE_LES_LITERAL, Xseg, (int32_t)0x00);
@@ -3452,7 +3498,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
               int count = 16;
               int sovElement = 1;
               Op(INT_FLASH_READ, dir, "ELEM_QUAD_ENCOD", state, count, sovElement);
-              Op(INT_IF_GRT, dir, "0");
+              Op(INT_IF_VARIABLE_GRT_VARIABLE, dir, "0");
                 Op(INT_INCREMENT_VARIABLE, leaf->d.QuadEncod.counter); // +
                 if(leaf->d.QuadEncod.countPerRevol > 0)
                   Op(INT_INCREMENT_VARIABLE, ticks);
@@ -3460,7 +3506,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                   Op(INT_SET_BIT, leaf->d.QuadEncod.dir);
                 Op(INT_SET_BIT, stateInOut);
               Op(INT_ELSE);
-                Op(INT_IF_LES, dir, "0");
+                Op(INT_IF_VARIABLE_LES_VARIABLE, dir, "0");
                   Op(INT_DECREMENT_VARIABLE, leaf->d.QuadEncod.counter); // -
                   if(leaf->d.QuadEncod.countPerRevol > 0)
                     Op(INT_DECREMENT_VARIABLE, ticks);
@@ -3579,14 +3625,14 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                     } else if(leaf->d.QuadEncod.countPerRevol > 0) {
                       char s[MAX_NAME_LEN];
                       sprintf(s, "%d", leaf->d.QuadEncod.countPerRevol / 2);
-                      Op(INT_IF_GRT, ticks, s);
+                      Op(INT_IF_VARIABLE_GRT_VARIABLE, ticks, s);
                         Op(INT_INCREMENT_VARIABLE, revol);
                         sprintf(s, "%d", leaf->d.QuadEncod.countPerRevol);
                         Op(INT_SET_VARIABLE_MULTIPLY, leaf->d.QuadEncod.counter, revol, s);
                         Op(INT_SET_VARIABLE_TO_LITERAL, ticks, (int32_t)0x00);
                       Op(INT_ELSE);
                         sprintf(s, "%d", -leaf->d.QuadEncod.countPerRevol / 2);
-                        Op(INT_IF_LES, ticks, s);
+                        Op(INT_IF_VARIABLE_LES_VARIABLE, ticks, s);
                           Op(INT_DECREMENT_VARIABLE, revol);
                           sprintf(s, "%d", leaf->d.QuadEncod.countPerRevol);
                           Op(INT_SET_VARIABLE_MULTIPLY, leaf->d.QuadEncod.counter, revol, s);
@@ -3611,8 +3657,8 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
             GenSymOneShot(isWrite, "isWrPERSIST", leaf->d.persist.var);
             Op(INT_IF_BIT_SET, stateInOut);
               // At startup, get the persistent variable from flash.
-              //Op(INT_IF_EQU, EEPROM_POSTPONE_BYTES_COUNTER, "0"); // if no postpone bytes
-              Op(INT_IF_NEQ, EEPROM_POSTPONE_BYTES_COUNTER, "0"); // if no postpone bytes
+              //Op(INT_IF_VARIABLE_EQU_VARIABLE, EEPROM_POSTPONE_BYTES_COUNTER, "0"); // if no postpone bytes
+              Op(INT_IF_VARIABLE_NEQ_VARIABLE, EEPROM_POSTPONE_BYTES_COUNTER, "0"); // if no postpone bytes
               Op(INT_ELSE);
                 Op(INT_EEPROM_BUSY, "$scratch");
                 Op(INT_IF_BIT_CLEAR, "$scratch"); // if EPPROM is ready
@@ -3627,7 +3673,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                     sprintf(tmpVarName, "$tmpVar%dbyte", sov);
                     SetSizeOfVar(tmpVarName, sov);
                     Op(INT_EEPROM_READ, tmpVarName, EepromAddrFree);
-                    Op(INT_IF_NEQ, tmpVarName, leaf->d.persist.var);
+                    Op(INT_IF_VARIABLE_NEQ_VARIABLE, tmpVarName, leaf->d.persist.var);
                       if(sov == 1) {
                         char s[MAX_NAME_LEN];
                         sprintf(s, "%d", EepromAddrFree);
@@ -3644,8 +3690,8 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
             Op(INT_END_IF);
             if(sov > 1) {
               Op(INT_IF_BIT_SET, isWrite);
-                //Op(INT_IF_NEQ, EEPROM_POSTPONE_BYTES_COUNTER, "0"); // if postponed bytes present
-                Op(INT_IF_EQU, EEPROM_POSTPONE_BYTES_COUNTER, "0"); // if postponed bytes present
+                //Op(INT_IF_VARIABLE_NEQ_VARIABLE, EEPROM_POSTPONE_BYTES_COUNTER, "0"); // if postponed bytes present
+                Op(INT_IF_VARIABLE_EQU_VARIABLE, EEPROM_POSTPONE_BYTES_COUNTER, "0"); // if postponed bytes present
                 Op(INT_ELSE);
                   //Op(INT_CLEAR_BIT, "$scratch");
                   Op(INT_EEPROM_BUSY, "$scratch");
@@ -3662,7 +3708,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                     Op(INT_EEPROM_WRITE_BYTE, "$tmpVar2byte", EEPROM_POSTPONE_BYTES);
                     Op(INT_SET_VARIABLE_SR0, EEPROM_POSTPONE_BYTES, EEPROM_POSTPONE_BYTES, "8");
                     Op(INT_DECREMENT_VARIABLE, EEPROM_POSTPONE_BYTES_COUNTER);
-                    Op(INT_IF_EQU, EEPROM_POSTPONE_BYTES_COUNTER, "0");
+                    Op(INT_IF_VARIABLE_EQU_VARIABLE, EEPROM_POSTPONE_BYTES_COUNTER, "0");
                       Op(INT_CLEAR_BIT, isWrite);
                     Op(INT_END_IF);
                   Op(INT_END_IF);
@@ -3751,7 +3797,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                         Op(INT_END_IF);
                       Op(INT_END_IF);
 
-                      Op(INT_IF_GEQ, index, bytes);
+                      Op(INT_IF_VARIABLE_GEQ_VARIABLE, index, bytes);
                         Op(INT_CLEAR_BIT, storeName);
                       Op(INT_END_IF);
                     Op(INT_END_IF);
@@ -3791,7 +3837,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                         Op(INT_IF_BIT_CLEAR, stateInOut);
                           //Op(INT_FLASH_READ, "$scratch", nameTable, index, len, 1, data);
                           Op(INT_SET_VARIABLE_TO_VARIABLE, "$scratch", buf, index);
-                          Op(INT_IF_NEQ, "$scratch", "0");
+                          Op(INT_IF_VARIABLE_NEQ_VARIABLE, "$scratch", "0");
                             Op(INT_UART_SEND1, "$scratch");
                             Op(INT_INCREMENT_VARIABLE, index);
                           Op(INT_ELSE);
@@ -3800,7 +3846,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                         Op(INT_END_IF);
                       Op(INT_END_IF);
 
-                      Op(INT_IF_GEQ, index, bytes);
+                      Op(INT_IF_VARIABLE_GEQ_VARIABLE, index, bytes);
                         Op(INT_CLEAR_BIT, storeName);
                       Op(INT_END_IF);
                     Op(INT_END_IF);
@@ -3835,7 +3881,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                       Op(INT_UART_SEND_BUSY, stateInOut); // stateInOut returns BUSY flag
                       Op(INT_IF_BIT_CLEAR, stateInOut);
                           Op(INT_SET_VARIABLE_INDEXED, "$scratch", buf, index);
-                          Op(INT_IF_NEQ, "$scratch", "0");
+                          Op(INT_IF_VARIABLE_NEQ_VARIABLE, "$scratch", "0");
                             Op(INT_UART_SEND1, "$scratch");
                             Op(INT_INCREMENT_VARIABLE, index);
                           Op(INT_ELSE);
@@ -3911,7 +3957,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                         Op(INT_UART_SEND_BUSY, "$scratch"); // stateInOut returns BUSY flag
                         Op(INT_IF_BIT_CLEAR, "$scratch");
                             Op(INT_SET_VARIABLE_INDEXED, "$scratch", leaf->d.uart.name, index, nameLit);
-                            Op(INT_IF_NEQ, "$scratch", "0");
+                            Op(INT_IF_VARIABLE_NEQ_VARIABLE, "$scratch", "0");
                                 Op(INT_UART_SEND1, "$scratch");
                                 Op(INT_INCREMENT_VARIABLE, index);
                             Op(INT_ELSE);
@@ -4021,7 +4067,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                     Op(INT_END_IF);
 
                     Op(INT_IF_BIT_SET, storeName);
-                      Op(INT_IF_LES, index, leaf->d.uart.bytes);
+                      Op(INT_IF_VARIABLE_LES_VARIABLE, index, leaf->d.uart.bytes);
                         Op(INT_UART_SEND_BUSY, stateInOut); // stateInOut returns BUSY flag
                         Op(INT_IF_BIT_CLEAR, stateInOut);
                           Op(INT_UART_SEND1, saved, index);
@@ -4029,7 +4075,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                         Op(INT_END_IF);
                       Op(INT_END_IF);
 
-                      Op(INT_IF_GEQ, index, bytes);
+                      Op(INT_IF_VARIABLE_GEQ_VARIABLE, index, bytes);
                         Op(INT_CLEAR_BIT, storeName);
                       Op(INT_END_IF);
                     Op(INT_END_IF);
@@ -4094,7 +4140,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                     char index[MAX_NAME_LEN];
                     GenVar(index, "index_UART_RECV", leaf->d.uart.name);
 
-                    Op(INT_IF_LES, index, leaf->d.uart.bytes);
+                    Op(INT_IF_VARIABLE_LES_VARIABLE, index, leaf->d.uart.bytes);
                       Op(INT_UART_RECV_AVAIL, stateInOut);
                       Op(INT_IF_BIT_SET, stateInOut);
                         Op(INT_UART_RECV1, saved, index);
@@ -4102,7 +4148,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                       Op(INT_END_IF);
                     Op(INT_END_IF);
 
-                    Op(INT_IF_GEQ, index, bytes);
+                    Op(INT_IF_VARIABLE_GEQ_VARIABLE, index, bytes);
                       Op(INT_SET_VARIABLE_TO_VARIABLE, leaf->d.uart.name, saved);
                       Op(INT_SET_VARIABLE_TO_LITERAL, index, 0);
                       Op(INT_SET_BIT, stateInOut);
@@ -4883,7 +4929,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                     // AVR brne op, which is +/- 64 instructions.
                     Op(INT_SET_VARIABLE_TO_LITERAL, "$scratch", i);
                     Op(INT_CLEAR_BIT, "$scratch");
-                    Op(INT_IF_VARIABLE_EQUALS_VARIABLE, "$scratch", seqScratch);
+                    Op(INT_IF_VARIABLE_EQU_VARIABLE, "$scratch", seqScratch);
                     Op(INT_SET_BIT, "$scratch");
                     Op(INT_END_IF);
 
@@ -4909,7 +4955,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
 
                     // Suppress all but the last leading zero.
                     if(digit != (digits - 1)) {
-                        Op(INT_IF_VARIABLE_EQUALS_VARIABLE, "$scratch", "$charToUart");
+                        Op(INT_IF_VARIABLE_EQU_VARIABLE, "$scratch", "$charToUart");
                         Op(INT_IF_BIT_SET, isLeadingZero);
                         Op(INT_SET_VARIABLE_TO_LITERAL, "$charToUart", ' '); // '0' %04d
                         Op(INT_END_IF);
@@ -4926,7 +4972,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                     // size limit, though
                     Op(INT_SET_VARIABLE_TO_LITERAL, "$scratch", i);
                     Op(INT_CLEAR_BIT, "$scratch");
-                    Op(INT_IF_VARIABLE_EQUALS_VARIABLE, "$scratch", seqScratch);
+                    Op(INT_IF_VARIABLE_EQU_VARIABLE, "$scratch", seqScratch);
                     Op(INT_SET_BIT, "$scratch");
                     Op(INT_END_IF);
                     Op(INT_IF_BIT_SET, "$scratch");
@@ -4946,7 +4992,7 @@ static void IntCodeFromCircuit(int which, void *any, SeriesNode *node, const cha
                 } else if(outputWhich[i] == OUTPUT_UCHAR) {
                     // just another character
                     Op(INT_SET_VARIABLE_TO_LITERAL, "$scratch", i);
-                    Op(INT_IF_VARIABLE_EQUALS_VARIABLE, "$scratch", seqScratch);
+                    Op(INT_IF_VARIABLE_EQU_VARIABLE, "$scratch", seqScratch);
                     Op(INT_SET_VARIABLE_TO_LITERAL, "$charToUart", outputChars[i]);
                     Op(INT_END_IF);
                 } else

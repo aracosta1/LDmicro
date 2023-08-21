@@ -1869,32 +1869,32 @@ static void SimulateIntCode()
                 break;
 
 #ifdef NEW_CMP
-            case INT_IF_GRT:
+            case INT_IF_VARIABLE_GRT_VARIABLE:
                 if(GetSimulationVariable(a->name1) > GetSimulationVariable(a->name2))
                     IF_BODY
                 break;
 
-            case INT_IF_GEQ:
+            case INT_IF_VARIABLE_GEQ_VARIABLE:
                 if(GetSimulationVariable(a->name1) >= GetSimulationVariable(a->name2))
                     IF_BODY
                 break;
 
-            case INT_IF_LES:
+            case INT_IF_VARIABLE_LES_VARIABLE:
                 if(GetSimulationVariable(a->name1) < GetSimulationVariable(a->name2))
                     IF_BODY
                 break;
 
-            case INT_IF_LEQ:
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
                 if(GetSimulationVariable(a->name1) <= GetSimulationVariable(a->name2))
                     IF_BODY
                 break;
 
-            case INT_IF_NEQ:
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
                 if(GetSimulationVariable(a->name1) != GetSimulationVariable(a->name2))
                     IF_BODY
                 break;
 
-            case INT_IF_EQU:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
                 if(GetSimulationVariable(a->name1) == GetSimulationVariable(a->name2))
                     IF_BODY
                 break;

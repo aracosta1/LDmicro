@@ -333,7 +333,7 @@ static void locateRegister()
                 }
                 break;
 
-            case INT_IF_VARIABLE_EQUALS_VARIABLE:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
             case INT_IF_VARIABLE_GRT_VARIABLE:
                 if(AddrForVariable(IntCode[ipc].name1) & MAPPED_TO_IO) {
                     AddrForVariable("$dummy1");
@@ -427,7 +427,7 @@ int GenerateIntOpcodes()
                 op.literal1 = IntCode[ipc].literal1;
                 goto finishIf;
 
-            case INT_IF_VARIABLE_EQUALS_VARIABLE:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
             case INT_IF_VARIABLE_GRT_VARIABLE:
                 op.name1 = AddrForVariable(IntCode[ipc].name1);
                 op.name2 = AddrForVariable(IntCode[ipc].name2);
@@ -1184,7 +1184,7 @@ static void generateNetzerOpcodes(BinOp *Program, int MaxLabel, OpcodeMeta *pOpc
                 ifVariableLesLiteral(&Program[idx], pOpcodeMeta, f);
                 break;
 
-            case INT_IF_VARIABLE_EQUALS_VARIABLE:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
                 ifVariable_X_Variable(&Program[idx], OP_IF_VARIABLE_EQUALS_VARIABLE, pOpcodeMeta, f);
                 break;
 

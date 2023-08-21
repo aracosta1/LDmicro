@@ -38,7 +38,7 @@ typedef struct {
     int16_t name1;
     int16_t name2;
     int16_t name3;
-    int32_t literal1;
+    int16_t literal1;
 } BinOp;
 
 static BinOp OutProg[MAX_INT_OPS];
@@ -140,16 +140,16 @@ void CompileInterpreted(const char *outFile)
                 op.name1 = AddrForVariable(IntCode[ipc].name1);
                 break;
 
-            case INT_SET_VARIABLE_SHL:
-            case INT_SET_VARIABLE_SHR:
-            case INT_SET_VARIABLE_ROL:
-            case INT_SET_VARIABLE_ROR:
-            case INT_SET_VARIABLE_AND:
-            case INT_SET_VARIABLE_OR:
-            case INT_SET_VARIABLE_NOT:
+            //case INT_SET_VARIABLE_SHL:
+            //case INT_SET_VARIABLE_SHR:
+            //case INT_SET_VARIABLE_ROL:
+            //case INT_SET_VARIABLE_ROR:
+            //case INT_SET_VARIABLE_AND:
+            //case INT_SET_VARIABLE_OR:
+            //case INT_SET_VARIABLE_NOT:
             case INT_SET_VARIABLE_MOD:
-            case INT_SET_VARIABLE_XOR:
-            case INT_SET_VARIABLE_SR0:
+            //case INT_SET_VARIABLE_XOR:
+            //case INT_SET_VARIABLE_SR0:
             case INT_SET_VARIABLE_NEG:
             case INT_SET_VARIABLE_ADD:
             case INT_SET_VARIABLE_SUBTRACT:
@@ -165,16 +165,22 @@ void CompileInterpreted(const char *outFile)
                 op.name1 = AddrForInternalRelay(IntCode[ipc].name1);
                 goto finishIf;
 
-            case INT_IF_VARIABLE_LES_LITERAL://
+            case INT_IF_VARIABLE_EQU_LITERAL:
+            case INT_IF_VARIABLE_NEQ_LITERAL:
+            case INT_IF_VARIABLE_LES_LITERAL:
+            case INT_IF_VARIABLE_LEQ_LITERAL:
+            case INT_IF_VARIABLE_GRT_LITERAL:
+            case INT_IF_VARIABLE_GEQ_LITERAL:
                 op.name1 = AddrForVariable(IntCode[ipc].name1);
                 op.literal1 = IntCode[ipc].literal1;
                 goto finishIf;
 
-            case INT_IF_GEQ:
-            case INT_IF_LEQ:
-            case INT_IF_NEQ:
-            case INT_IF_EQU:
-            case INT_IF_GRT:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
+            case INT_IF_VARIABLE_LES_VARIABLE:
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
+            case INT_IF_VARIABLE_GRT_VARIABLE:
+            case INT_IF_VARIABLE_GEQ_VARIABLE:
                 op.name1 = AddrForVariable(IntCode[ipc].name1);
                 op.name2 = AddrForVariable(IntCode[ipc].name2);
                 goto finishIf;
@@ -215,11 +221,11 @@ void CompileInterpreted(const char *outFile)
             case INT_AllocFwdAddr:
             case INT_AllocKnownAddr:
             case INT_FwdAddrIsNow:
-                op.name1 = AddrForVariable(IntCode[ipc].name1);
-                //ignore_op = 1;
+                //op.name1 = AddrForVariable(IntCode[ipc].name1);
+                //break;
+                ignore_op = 1;
                 // Don't care; ignore, and don't generate an instruction.
-                //continue;
-                break;
+                continue;
 
             case INT_GOTO:
             case INT_GOSUB:

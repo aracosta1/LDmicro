@@ -68,7 +68,7 @@ typedef struct {
     int16_t name1;
     int16_t name2;
     int16_t name3;
-    int32_t literal1;
+    int16_t literal1;
 } BinOp;
 
 
@@ -212,35 +212,35 @@ void Disassemble()
     char c;
     for(int pc = 0;; pc++) {
         BinOp *p = &Program[pc];
-        printf("%03x: ", pc);
+        printf("%03d: ", pc);
 
         switch(Program[pc].op) {
             case INT_SET_BIT:
-                printf("bits[%03x] := 1", p->name1);
+                printf("bits[%03d] := 1", p->name1);
                 break;
 
             case INT_CLEAR_BIT:
-                printf("bits[%03x] := 0", p->name1);
+                printf("bits[%03d] := 0", p->name1);
                 break;
 
             case INT_COPY_BIT_TO_BIT:
-                printf("bits[%03x] := bits[%03x]", p->name1, p->name2);
+                printf("bits[%03d] := bits[%03d]", p->name1, p->name2);
                 break;
 
             case INT_SET_VARIABLE_TO_LITERAL:
-                printf("int16s[%03x] := %d (0x%04x)", p->name1, p->literal1, p->literal1);
+                printf("int16s[%03d] := %d (0x%04x)", p->name1, p->literal1, p->literal1);
                 break;
 
             case INT_SET_VARIABLE_TO_VARIABLE:
-                printf("int16s[%03x] := int16s[%03x]", p->name1, p->name2);
+                printf("int16s[%03d] := int16s[%03d]", p->name1, p->name2);
                 break;
 
             case INT_DECREMENT_VARIABLE:
-                printf("(int16s[%03x])--", p->name1);
+                printf("(int16s[%03d])--", p->name1);
                 break;
 
             case INT_INCREMENT_VARIABLE:
-                printf("(int16s[%03x])++", p->name1);
+                printf("(int16s[%03d])++", p->name1);
                 break;
 
             case INT_SET_VARIABLE_ADD:
@@ -259,41 +259,59 @@ void Disassemble()
                 c = '%';
                 goto arith;
             arith:
-                printf("int16s[%03x] := int16s[%03x] %c int16s[%03x]", p->name1, p->name2, c, p->name3);
+                printf("int16s[%03d] := int16s[%03d] %c int16s[%03d]", p->name1, p->name2, c, p->name3);
                 break;
 
             case INT_IF_BIT_SET:
-                printf("unless (bits[%03x] set)", p->name1);
+                printf("unless (bits[%03d] set)", p->name1);
                 goto cond;
             case INT_IF_BIT_CLEAR:
-                printf("unless (bits[%03x] clear)", p->name1);
+                printf("unless (bits[%03d] clear)", p->name1);
+                goto cond;
+
+            case INT_IF_VARIABLE_EQU_LITERAL:
+                printf("unless (int16s[%03d] == %d)", p->name1, p->literal1);
+                goto cond;
+            case INT_IF_VARIABLE_NEQ_LITERAL:
+                printf("unless (int16s[%03d] != %d])", p->name1, p->literal1);
                 goto cond;
             case INT_IF_VARIABLE_LES_LITERAL:
-                printf("unless (int16s[%03x] < %d)", p->name1, p->literal1);
+                printf("unless (int16s[%03d] < %d)", p->name1, p->literal1);
                 goto cond;
-            case INT_IF_VARIABLE_EQUALS_VARIABLE:
-                printf("unless (int16s[%03x] == int16s[%03x])", p->name1, p->name2);
+            case INT_IF_VARIABLE_LEQ_LITERAL:
+                printf("unless (int16s[%03d] <= %d)", p->name1, p->literal1);
+                goto cond;
+            case INT_IF_VARIABLE_GRT_LITERAL:
+                printf("unless (int16s[%03d] > %d)", p->name1, p->literal1);
+                goto cond;
+            case INT_IF_VARIABLE_GEQ_LITERAL:
+                printf("unless (int16s[%03d] >= %d)", p->name1, p->literal1);
                 goto cond;
 
-            case INT_IF_GEQ:
-                printf("unless (int16s[%03x] >= int16s[%03x])", p->name1, p->name2);
+            case INT_IF_VARIABLE_EQU_VARIABLE:
+                printf("unless (int16s[%03d] == int16s[%03d])", p->name1, p->name2);
                 goto cond;
-            case INT_IF_LEQ:
-                printf("unless (int16s[%03x] <= int16s[%03x])", p->name1, p->name2);
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
+                printf("unless (int16s[%03d] != int16s[%03d])", p->name1, p->name2);
                 goto cond;
-
-            case INT_IF_NEQ:
-                printf("unless (int16s[%03x] != int16s[%03x])", p->name1, p->name2);
+            case INT_IF_VARIABLE_LES_VARIABLE:
+                printf("unless (int16s[%03d] < int16s[%03d])", p->name1, p->name2);
+                goto cond;
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
+                printf("unless (int16s[%03d] <= int16s[%03d])", p->name1, p->name2);
                 goto cond;
             case INT_IF_VARIABLE_GRT_VARIABLE:
-                printf("unless (int16s[%03x] > int16s[%03x])", p->name1, p->name2);
+                printf("unless (int16s[%03d] > int16s[%03d])", p->name1, p->name2);
+                goto cond;
+            case INT_IF_VARIABLE_GEQ_VARIABLE:
+                printf("unless (int16s[%03d] >= int16s[%03d])", p->name1, p->name2);
                 goto cond;
             cond:
-                printf(" jump %03x+1", p->name3);
+                printf(" jump %03d", p->name3+1);
                 break;
 
             case INT_ELSE:
-                printf("jump %03x+1", p->name3);
+                printf("jump %03d", p->name3+1);
                 break;
 
             case INT_END_OF_PROGRAM:
@@ -390,6 +408,10 @@ void InterpretOneCycle()
                     Integers[p->name1] = Integers[p->name2] % Integers[p->name3];
                 break;
 
+            case INT_SET_VARIABLE_NEG:
+                Integers[p->name1] = -Integers[p->name2];
+                break;
+
             case INT_IF_BIT_SET:
                 if(!Bits[p->name1])
                     pc = p->name3;
@@ -405,21 +427,21 @@ void InterpretOneCycle()
                     pc = p->name3;
                 break;
 
-            case INT_IF_GEQ:
-                if(!(Integers[p->name1] >= p->literal1))
+            case  INT_IF_VARIABLE_GEQ_VARIABLE:
+                if(!(Integers[p->name1] >= Integers[p->name2]))
                     pc = p->name3;
                 break;
 
-            case INT_IF_LEQ:
-                if(!(Integers[p->name1] <= p->literal1))
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
+                if(!(Integers[p->name1] <= Integers[p->name2]))
                     pc = p->name3;
                 break;
 
-            case INT_IF_NEQ:
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
                 if(!(Integers[p->name1] != Integers[p->name2]))
                     pc = p->name3;
 
-            case INT_IF_VARIABLE_EQUALS_VARIABLE:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
                 if(!(Integers[p->name1] == Integers[p->name2]))
                     pc = p->name3;
                 break;

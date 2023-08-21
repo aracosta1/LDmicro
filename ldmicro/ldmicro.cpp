@@ -968,7 +968,8 @@ IsOpenAnable:
                     ooops("0x%X", Prog.mcu()->whichIsa);
             }
             postCompile(GetIsaName(Prog.mcu()->whichIsa));
-        } else
+        } 
+        else
             oops();
 
     } catch(const std::exception &e) {

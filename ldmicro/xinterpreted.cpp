@@ -170,7 +170,7 @@ void CompileXInterpreted(const char *outFile)
                 OutProg.push_back((uint8_t)(IntCode[ipc].literal1 & 0xFF));
                 OutProg.push_back((uint8_t)((IntCode[ipc].literal1 >> 8) & 0xFF));
                 goto finishIf;
-            case INT_IF_VARIABLE_EQUALS_VARIABLE:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
             case INT_IF_VARIABLE_GRT_VARIABLE:
                 OutProg.push_back(IntCode[ipc].op);
                 OutProg.push_back(AddrForVariable(IntCode[ipc].name1.c_str()));

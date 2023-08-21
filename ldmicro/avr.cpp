@@ -3850,23 +3850,23 @@ static void CompileFromIntermediate()
 #endif
 
 #ifdef NEW_CMP
-            case INT_IF_GRT:
-                Comment("INT_IF_GRT");
+            case INT_IF_VARIABLE_GRT_VARIABLE:
+                Comment("INT_IF_VARIABLE_GRT_VARIABLE");
                 goto cmp;
-            case INT_IF_GEQ:
-                Comment("INT_IF_GEQ");
+            case INT_IF_VARIABLE_GEQ_VARIABLE:
+                Comment("INT_IF_VARIABLE_GEQ_VARIABLE");
                 goto cmp;
-            case INT_IF_LES:
+            case INT_IF_VARIABLE_LES_VARIABLE:
                 Comment("INT_IF_LES");
                 goto cmp;
-            case INT_IF_LEQ:
-                Comment("INT_IF_LEQ");
+            case INT_IF_VARIABLE_LEQ_VARIABLE:
+                Comment("INT_IF_VARIABLE_LEQ_VARIABLE");
                 goto cmp;
-            case INT_IF_NEQ:
-                Comment("INT_IF_NEQ");
+            case INT_IF_VARIABLE_NEQ_VARIABLE:
+                Comment("INT_IF_VARIABLE_NEQ_VARIABLE");
                 goto cmp;
-            case INT_IF_EQU:
-                Comment("INT_IF_EQU");
+            case INT_IF_VARIABLE_EQU_VARIABLE:
+                Comment("INT_IF_VARIABLE_EQU_VARIABLE");
                 goto cmp;
             cmp : {
                 uint32_t notTrue = AllocFwdAddr();
@@ -3875,8 +3875,8 @@ static void CompileFromIntermediate()
                 CopyArgToReg(r16, sov, a->name2);
 
                 switch(a->op) {
-                    case INT_IF_LEQ: // * op2 - op1
-                    case INT_IF_GRT: // *
+                    case INT_IF_VARIABLE_LEQ_VARIABLE: // * op2 - op1
+                    case INT_IF_VARIABLE_GRT_VARIABLE: // *
                         Instruction(OP_CP, 16, 20);
                         if(sov >= 2)
                             Instruction(OP_CPC, 17, 21);
@@ -3885,7 +3885,7 @@ static void CompileFromIntermediate()
                         if(sov >= 4)
                             Instruction(OP_CPC, 19, 23);
                         break;
-                    case INT_IF_EQU: // op1 - op2
+                    case INT_IF_VARIABLE_EQU_VARIABLE: // op1 - op2
                         Instruction(OP_CP, 20, 16);
                         Instruction(OP_BRNE, notTrue, 0);
                         if(sov >= 2) {
@@ -3910,18 +3910,18 @@ static void CompileFromIntermediate()
                             Instruction(OP_CPC, 23, 19);
                 }
                 switch(a->op) {
-                    case INT_IF_LEQ: // *
-                    case INT_IF_GEQ:
+                    case INT_IF_VARIABLE_LEQ_VARIABLE: // *
+                    case INT_IF_VARIABLE_GEQ_VARIABLE:
                         Instruction(OP_BRLT, notTrue, 0);
                         break;
-                    case INT_IF_GRT: // *
-                    case INT_IF_LES:
+                    case INT_IF_VARIABLE_GRT_VARIABLE: // *
+                    case INT_IF_VARIABLE_LES_VARIABLE:
                         Instruction(OP_BRGE, notTrue, 0);
                         break;
-                    case INT_IF_NEQ:
+                    case INT_IF_VARIABLE_NEQ_VARIABLE:
                         Instruction(OP_BREQ, notTrue, 0);
                         break;
-                    case INT_IF_EQU:
+                    case INT_IF_VARIABLE_EQU_VARIABLE:
                         Instruction(OP_BRNE, notTrue, 0);
                         break;
                     default:

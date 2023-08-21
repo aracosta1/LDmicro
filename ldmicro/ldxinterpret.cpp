@@ -229,7 +229,7 @@ void Disassemble()
                 printf("ifnot (int16s[%s] < %d)", Symbols[Program[pc + 1]], Program[pc + 2] + (Program[pc + 3] << 8));
                 pc += 4;
                 goto cond;
-            case INT_IF_VARIABLE_EQUALS_VARIABLE:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
                 printf("ifnot (int16s[%s] == int16s[%s])", Symbols[Program[pc + 1]], Symbols[Program[pc + 2]]);
                 pc += 3;
                 goto cond;
@@ -361,7 +361,7 @@ void InterpretOneCycle()
                 pc += 5;
                 break;
 
-            case INT_IF_VARIABLE_EQUALS_VARIABLE:
+            case INT_IF_VARIABLE_EQU_VARIABLE:
                 if(!(READ_INT(Program[pc + 1]) == READ_INT(Program[pc + 2])))
                     pc += Program[pc + 3];
                 pc += 4;
