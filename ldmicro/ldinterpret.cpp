@@ -43,7 +43,7 @@ typedef unsigned char  BYTE; // 8-bit unsigned
 typedef unsigned short WORD; // 16-bit unsigned
 
 // Some arbitrary limits on the program and data size
-#define MAX_OPS 1024
+#define MAX_OPS 256
 #define MAX_VARIABLES 128
 #define MAX_INTERNAL_RELAYS 128
 
@@ -64,24 +64,46 @@ typedef unsigned short WORD; // 16-bit unsigned
 // that you're going to use for your interface out. I will therefore leave
 // that up to you.
 typedef struct {
-    WORD    op;
-    WORD    name1;
-    WORD    name2;
-    WORD    name3;
+    int16_t op;
+    int16_t name1;
+    int16_t name2;
+    int16_t name3;
     int32_t literal1;
 } BinOp;
+
 
 BinOp   Program[MAX_OPS];
 int32_t Integers[MAX_VARIABLES];
 BYTE    Bits[MAX_INTERNAL_RELAYS];
 
-// This are addresses (indices into Integers[] or Bits[]) used so that your
-// C code can get at some of the ladder variables, by remembering the
-// mapping between some ladder names and their addresses.
-int SpecialAddrForA;
-int SpecialAddrForXosc;
+// This is the requested cycle time, the hardware will do it's best to run with this timing but NO guarantee is given.
+int CycleTime = 10;
 
-//-----------------------------------------------------------------------------
+// this is implementation specific. Every target will use a custom association of IO register to real register
+// in this example:
+//      X0-3 are mapped to input pins
+//      Y0-1 are mapped to relays
+//      A0 is a temperature value
+//      
+typedef struct {
+    int addr;   // address in the Bits table
+} InputMap_t;
+#define MAX_INPUT 16
+InputMap_t InputMap[MAX_INPUT];
+
+typedef struct {
+    int addr; // address in the Bits table
+} OutputMap_t;
+#define MAX_OUTPUT 2
+OutputMap_t OutputMap[MAX_OUTPUT];
+
+typedef struct {
+    int addr; // address in the Bits table
+} AnalogMap_t;
+#define MAX_ANALOG 1
+AnalogMap_t AnalogMap[MAX_ANALOG];
+
+    //-----------------------------------------------------------------------------
 // What follows are just routines to load the program, which I represent as
 // hex bytes, one instruction per line, into memory. You don't need to
 // remember the length of the program because the last instruction is a
@@ -129,6 +151,11 @@ void LoadProgram(char *fileName)
             BadFormat();
         if(strcmp(line, "$$bits\n") == 0)
             break;
+        if(strcmp(line, "$$int16s\n") == 0)
+            break;
+        if(strcmp(line, "$$cycle\n") == 0)
+            break;
+
         if(strlen(line) != sizeof(BinOp) * 2 + 1)
             BadFormat();
 
@@ -141,30 +168,31 @@ void LoadProgram(char *fileName)
         }
     }
 
-    SpecialAddrForA = -1;
-    SpecialAddrForXosc = -1;
+    // end of LDcode, now parse variables and find X, Y, A
+    char *p;
+    int   reg;
+    int   addr;
     while(fgets(line, sizeof(line), f)) {
-        if(memcmp(line, "a,", 2) == 0) {
-            SpecialAddrForA = atoi(line + 2);
-        }
-        if(memcmp(line, "Xosc,", 5) == 0) {
-            SpecialAddrForXosc = atoi(line + 5);
-        }
-        if(memcmp(line, "$$cycle", 7) == 0) {
-            if(atoi(line + 7) != 10 * 1000) {
-                fprintf(stderr,
-                        "cycle time was not 10 ms when compiled; "
-                        "please fix that.\n");
-                exit(-1);
+        if (*line == 'X') {
+            p = strchr(line, ',');
+            if(p == NULL)
+                BadFormat();
+            *p = 0;
+            reg = atoi(line + 1);
+            addr = atoi(p + 1);
+            if(reg < MAX_INPUT) {
+                InputMap[reg].addr = addr;
             }
         }
-    }
-
-    if(SpecialAddrForA < 0 || SpecialAddrForXosc < 0) {
-        fprintf(stderr,
-                "special interface variables 'a' or 'Xosc' not "
-                "used in prog.\n");
-        exit(-1);
+        if(memcmp(line, "X", 1) == 0) {
+        }
+        if(memcmp(line, "Y", 1) == 0) {
+        }
+        if(memcmp(line, "A", 1) == 0) {
+        }
+        if(memcmp(line, "$$cycle", 7) == 0) {
+            CycleTime = atoi(line + 7);
+        }
     }
 
     fclose(f);
@@ -180,6 +208,7 @@ void LoadProgram(char *fileName)
 //-----------------------------------------------------------------------------
 void Disassemble()
 {
+    char bad_codes = 0;
     char c;
     for(int pc = 0;; pc++) {
         BinOp *p = &Program[pc];
@@ -245,6 +274,17 @@ void Disassemble()
             case INT_IF_VARIABLE_EQUALS_VARIABLE:
                 printf("unless (int16s[%03x] == int16s[%03x])", p->name1, p->name2);
                 goto cond;
+
+            case INT_IF_GEQ:
+                printf("unless (int16s[%03x] >= int16s[%03x])", p->name1, p->name2);
+                goto cond;
+            case INT_IF_LEQ:
+                printf("unless (int16s[%03x] <= int16s[%03x])", p->name1, p->name2);
+                goto cond;
+
+            case INT_IF_NEQ:
+                printf("unless (int16s[%03x] != int16s[%03x])", p->name1, p->name2);
+                goto cond;
             case INT_IF_VARIABLE_GRT_VARIABLE:
                 printf("unless (int16s[%03x] > int16s[%03x])", p->name1, p->name2);
                 goto cond;
@@ -258,14 +298,31 @@ void Disassemble()
 
             case INT_END_OF_PROGRAM:
                 printf("<end of program>\n");
+                if(bad_codes > 0)
+                    BadFormat();
                 return;
 
+            case INT_AllocFwdAddr:
+                printf("INT_AllocFwdAddr %03d", p->name1);
+                break;
+
+            case INT_AllocKnownAddr:
+                printf("INT_AllocKnownAddr %03d", p->name1);
+                break;
+
+            case INT_FwdAddrIsNow:
+                printf("INT_FwdAddrIsNow %03d", p->name1);
+                break;
+
             default:
-                BadFormat();
+                printf("Unsupported op (Peripheral) for interpretable target. INT_%d", Program[pc].op);
+                bad_codes++;
                 break;
         }
         printf("\n");
     }
+
+    printf("\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -348,6 +405,20 @@ void InterpretOneCycle()
                     pc = p->name3;
                 break;
 
+            case INT_IF_GEQ:
+                if(!(Integers[p->name1] >= p->literal1))
+                    pc = p->name3;
+                break;
+
+            case INT_IF_LEQ:
+                if(!(Integers[p->name1] <= p->literal1))
+                    pc = p->name3;
+                break;
+
+            case INT_IF_NEQ:
+                if(!(Integers[p->name1] != Integers[p->name2]))
+                    pc = p->name3;
+
             case INT_IF_VARIABLE_EQUALS_VARIABLE:
                 if(!(Integers[p->name1] == Integers[p->name2]))
                     pc = p->name3;
@@ -364,34 +435,60 @@ void InterpretOneCycle()
 
             case INT_END_OF_PROGRAM:
                 return;
+
+            case INT_AllocFwdAddr:
+            case INT_AllocKnownAddr:
+            case INT_FwdAddrIsNow:
+                //ignore this vitual opcodes
+                break;
+
+            default:
+                printf("Unsupported op (Peripheral) for interpretable target. INT_%d", Program[pc].op);
+                break;
         }
     }
 }
 
+void ReadInputs(void)
+{
+
+}
+
+void WriteOutputs(void)
+{
+}
+
+
 int main(int argc, char **argv)
 {
     if(argc != 2) {
-        fprintf(stderr, "usage: %s xxx.int\n", argv[0]);
-        return -1;
+//        fprintf(stderr, "usage: %s xxx.int\n", argv[0]);
+//        return -1;
+        LoadProgram("coil_s_r_n.int");
+    } else {
+        LoadProgram(argv[1]);
     }
 
-    LoadProgram(argv[1]);
     memset(Integers, 0, sizeof(Integers));
     memset(Bits, 0, sizeof(Bits));
 
+    Disassemble();
     // 1000 cycles times 10 ms gives 10 seconds execution
-    for(int i = 0; i < 1000; i++) {
+    for(int i = 0; i < 10; i++) {
+        // function to read the phisical inputs and update the variables
+        ReadInputs();
+
         InterpretOneCycle();
 
-        // Example for reaching in and reading a variable: just print it.
-        printf("a = %d              \r", Integers[SpecialAddrForA]);
+        // function to write the outputs with values from the variables
+        WriteOutputs();
 
-        // Example for reaching in and writing a variable.
-        Bits[SpecialAddrForXosc] = !Bits[SpecialAddrForXosc];
+        // Example for reaching in and reading a variable: just print it.
+        //printf("a = %d              \r", Integers[SpecialAddrForA]);
 
         // XXX, nonportable; replace with whatever timing functions are
         // available on your target.
-        Sleep(10);
+        Sleep(CycleTime/1000);
     }
 
     return 0;

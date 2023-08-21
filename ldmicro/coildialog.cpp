@@ -55,7 +55,12 @@ static LRESULT CALLBACK MyNameProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 
 static void MakeControls()
 {
+    SetLastError(0);
     HWND grouper = CreateWindowEx(0, WC_BUTTON, _("Type"), WS_CHILD | BS_GROUPBOX | WS_VISIBLE | WS_TABSTOP, 7, 3, 120, 125, CoilDialog, nullptr, Instance, nullptr);
+    if(grouper == 0) {
+        int i = GetLastError();
+        printf("CreateWindowEx error %x\n", i);
+    }
     NiceFont(grouper);
 
     NormalRadio = CreateWindowEx(0, WC_BUTTON, _("( ) Normal"), WS_CHILD | BS_AUTORADIOBUTTON | WS_TABSTOP | WS_VISIBLE | WS_GROUP, 16, 21, 100, 20, CoilDialog, nullptr, Instance, nullptr);
@@ -105,6 +110,7 @@ void ShowCoilDialog(bool *negated, bool *setOnly, bool *resetOnly, bool *ttrigge
     char nameSave[MAX_NAME_LEN];
     strcpy(nameSave, name);
 
+    CoilDialog = 0;
     CoilDialog = CreateWindowClient(0, "LDmicroDialog", _("Coil"), WS_OVERLAPPED | WS_SYSMENU, 100, 100, 375, 135, nullptr, nullptr, Instance, nullptr);
     RECT r;
     GetClientRect(CoilDialog, &r);

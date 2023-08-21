@@ -402,6 +402,7 @@ HMENU MakeMainWindowMenus()
     InstructionMenu = CreatePopupMenu();
     AppendMenu(InstructionMenu, MF_STRING, MNU_INSERT_COMMENT, _("Insert Co&mment\t;"));
 
+#if 0
     CourseMenu = CreatePopupMenu();
     AppendMenu(CourseMenu, MF_STRING, MNU_INSERT_OPEN, _("Insert -+        +- Open-Circuit\tShift+Enter"));
     AppendMenu(CourseMenu, MF_STRING, MNU_INSERT_SHORT, _("Insert -+------+- Short-Circuit\tCtrl+Enter"));
@@ -424,6 +425,7 @@ HMENU MakeMainWindowMenus()
     AppendMenu(CourseMenu, MF_STRING, MNU_INSERT_DELAY, _("Insert DELAY(us)"));
     AppendMenu(CourseMenu, MF_STRING, MNU_INSERT_TIME2DELAY, _("Insert TIME to DELAY converter"));
     AppendMenu(InstructionMenu, MF_STRING | MF_POPUP, (UINT_PTR)CourseMenu, _("Operations that change the course of the program"));
+#endif
 
     AppendMenu(InstructionMenu, MF_SEPARATOR, 0, nullptr);
     ConMenu = CreatePopupMenu();
@@ -539,6 +541,7 @@ HMENU MakeMainWindowMenus()
     AppendMenu(SignedMenu, MF_STRING, MNU_INSERT_SEED_RANDOM, _("Insert Seed of Random"));
     AppendMenu(InstructionMenu, MF_STRING | MF_POPUP, (UINT_PTR)SignedMenu, _("Signed variable operations"));
 
+#if 0
     BitwiseMenu = CreatePopupMenu();
     AppendMenu(BitwiseMenu, MF_STRING, MNU_INSERT_AND, _("Insert bitwise AND"));
     AppendMenu(BitwiseMenu, MF_STRING, MNU_INSERT_OR, _("Insert bitwise OR     |"));
@@ -619,9 +622,10 @@ HMENU MakeMainWindowMenus()
 
     AppendMenu(InstructionMenu, MF_STRING | MF_POPUP, (UINT_PTR)SpecialFunction, _("Special Function for AVR (Obsolete)"));
 #endif
-
+#endif
     settings = CreatePopupMenu();
     ProcessorMenu = CreatePopupMenu();
+#if 1
     /// Modified by JG3
     ProcAvrMenu = CreatePopupMenu();
     ProcPic16Menu = CreatePopupMenu();
@@ -661,7 +665,7 @@ HMENU MakeMainWindowMenus()
     AppendMenu(ProcessorMenu, MF_STRING | MF_POPUP, (UINT_PTR)ProcArmMenu, _("ARM MCUs"));                  /// To translate
     AppendMenu(ProcessorMenu, MF_STRING | MF_POPUP, (UINT_PTR)ProcEspMenu, _("ESP MCUs"));                  /// To translate
     AppendMenu(ProcessorMenu, MF_STRING | MF_POPUP, (UINT_PTR)ProcOthersMenu, _("Other MCUs"));             /// To translate
-                                                                                                            ///
+#endif                                                                                                            ///
 
     /*
     Core core = supportedMcus()[0].core;
@@ -678,8 +682,9 @@ HMENU MakeMainWindowMenus()
     AppendMenu(ProcessorMenu, MF_STRING, MNU_PROCESSOR_0 + supportedMcus().size(), _("(no microcontroller)"));
     AppendMenu(settings, MF_STRING | MF_POPUP, (UINT_PTR)ProcessorMenu, _("&Microcontroller"));
     AppendMenu(settings, MF_STRING, MNU_MCU_SETTINGS, _("&MCU Parameters...\tCtrl+F5"));
-    AppendMenu(settings, MF_STRING, MNU_PULL_UP_RESISTORS, _("Set Pull-up input resistors"));
+//    AppendMenu(settings, MF_STRING, MNU_PULL_UP_RESISTORS, _("Set Pull-up input resistors"));
 
+#if 0
     ProcessorMenu2 = CreatePopupMenu();
     AppendMenu(settings, MF_STRING | MF_POPUP, (UINT_PTR)ProcessorMenu2, _("Microcontrollers: TODO and DONE"));
     AppendMenu(ProcessorMenu2, MF_STRING, MNU_PROCESSOR_NEW, "DONE: Atmel AVR ATmega32U4 44-Pin packages");
@@ -707,6 +712,7 @@ HMENU MakeMainWindowMenus()
     AppendMenu(ProcessorMenu2, MF_STRING, MNU_PROCESSOR_NEW, "DONE: Microchip PIC16F1516 28-Pin SPDIP, SOIC, SSOP");
     AppendMenu(ProcessorMenu2, MF_STRING, MNU_PROCESSOR_NEW, "DONE: Microchip PIC16F1527 64-Pin packages");
     AppendMenu(ProcessorMenu2, MF_STRING, MNU_PROCESSOR_NEW, "DONE: Microchip PIC16F1933 - PIC16F1947");
+#endif
 
     // simulate popup menu
     SimulateMenu = CreatePopupMenu();
@@ -717,34 +723,34 @@ HMENU MakeMainWindowMenus()
 
     compile = CreatePopupMenu();
     AppendMenu(compile, MF_STRING, MNU_COMPILE, _("&Compile\tF5"));
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_AS, _("Compile &As..."));
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_IHEX, _("Compile HEX->ASM"));
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_AS, _("Compile &As..."));
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_IHEX, _("Compile HEX->ASM"));
     //AppendMenu(compile, MF_STRING, MNU_COMPILE_IHEX, _("Compile ASM->HEX"));
     AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_ANSIC, _("Compile ANSIC"));
-    AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_HI_TECH_C, _("Compile HI-TECH C for PIC"));
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_CCS_PIC_C, _("Compile CCS C for PIC"));
-    AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_GNUC, _("Compile Atmel WinAVR C"));
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_AVRGCC, _("Compile Atmel AVR-GCC"));
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_CODEVISIONAVR, _("Compile CodeVisionAVR C"));
-    AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_ARDUINO, _("Compile Sketch for ARDUINO"));
-    AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_ARMGCC, _("Compile ARM-GCC for 32-bit ARM"));
-    AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_PASCAL, _("Compile PASCAL"));
-    AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_ANSIC, _("Compile ANSIC"));
+    //AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_HI_TECH_C, _("Compile HI-TECH C for PIC"));
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_CCS_PIC_C, _("Compile CCS C for PIC"));
+    //AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_GNUC, _("Compile Atmel WinAVR C"));
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_AVRGCC, _("Compile Atmel AVR-GCC"));
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_CODEVISIONAVR, _("Compile CodeVisionAVR C"));
+    //AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_ARDUINO, _("Compile Sketch for ARDUINO"));
+    //AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_ARMGCC, _("Compile ARM-GCC for 32-bit ARM"));
+    //AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_PASCAL, _("Compile PASCAL"));
+    //AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
     AppendMenu(compile, MF_STRING, MNU_COMPILE_INT, _("Compile Interpretable Byte Code"));
-    AppendMenu(compile, MF_STRING, MNU_COMPILE_XINT, _("Compile Interpretable Extended Byte Code"));
-    AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
-    AppendMenu(compile, MF_STRING, MNU_BUILD_ALL, _("Build C Solution\tF6"));
-    AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
-    AppendMenu(compile, MF_STRING, MNU_FLASH_BAT, _("Call flashMcu\tF9"));
-    AppendMenu(compile, MF_STRING, MNU_READ_BAT, _("Call readMcu\tCtrl+F9"));
-    AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
-    AppendMenu(compile, MF_STRING, MNU_CLEAR_BAT, _("Call clear"));
+    //AppendMenu(compile, MF_STRING, MNU_COMPILE_XINT, _("Compile Interpretable Extended Byte Code"));
+    //AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
+    //AppendMenu(compile, MF_STRING, MNU_BUILD_ALL, _("Build C Solution\tF6"));
+    //AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
+    //AppendMenu(compile, MF_STRING, MNU_FLASH_BAT, _("Call flashMcu\tF9"));
+    //AppendMenu(compile, MF_STRING, MNU_READ_BAT, _("Call readMcu\tCtrl+F9"));
+    //AppendMenu(compile, MF_SEPARATOR, 0, nullptr);
+    //AppendMenu(compile, MF_STRING, MNU_CLEAR_BAT, _("Call clear"));
 
     ConfigMenu = CreatePopupMenu();
     SchemeMenu = CreatePopupMenu();

@@ -34,10 +34,10 @@ static char InternalRelays[MAX_IO][MAX_NAME_LEN];
 static int  InternalRelaysCount;
 
 typedef struct {
-    int32_t op;
-    int32_t name1;
-    int32_t name2;
-    int32_t name3;
+    int16_t op;
+    int16_t name1;
+    int16_t name2;
+    int16_t name3;
     int32_t literal1;
 } BinOp;
 
@@ -91,6 +91,7 @@ void CompileInterpreted(const char *outFile)
 
     fprintf(f, "$$LDcode\n");
 
+    int   ignore_op;
     int   outPc;
     BinOp op;
 
@@ -107,6 +108,7 @@ void CompileInterpreted(const char *outFile)
 
     outPc = 0;
     for(uint32_t ipc = 0; ipc < IntCode.size(); ipc++) {
+        ignore_op = 0;
         memset(&op, 0, sizeof(op));
         op.op = IntCode[ipc].op;
 
@@ -163,13 +165,16 @@ void CompileInterpreted(const char *outFile)
                 op.name1 = AddrForInternalRelay(IntCode[ipc].name1);
                 goto finishIf;
 
-            case INT_IF_VARIABLE_LES_LITERAL:
+            case INT_IF_VARIABLE_LES_LITERAL://
                 op.name1 = AddrForVariable(IntCode[ipc].name1);
                 op.literal1 = IntCode[ipc].literal1;
                 goto finishIf;
 
-            case INT_IF_VARIABLE_EQUALS_VARIABLE:
-            case INT_IF_VARIABLE_GRT_VARIABLE:
+            case INT_IF_GEQ:
+            case INT_IF_LEQ:
+            case INT_IF_NEQ:
+            case INT_IF_EQU:
+            case INT_IF_GRT:
                 op.name1 = AddrForVariable(IntCode[ipc].name1);
                 op.name2 = AddrForVariable(IntCode[ipc].name2);
                 goto finishIf;
@@ -203,17 +208,24 @@ void CompileInterpreted(const char *outFile)
 
             case INT_SIMULATE_NODE_STATE:
             case INT_COMMENT:
+                ignore_op = 1;
                 // Don't care; ignore, and don't generate an instruction.
                 continue;
 
             case INT_AllocFwdAddr:
             case INT_AllocKnownAddr:
             case INT_FwdAddrIsNow:
+                op.name1 = AddrForVariable(IntCode[ipc].name1);
+                //ignore_op = 1;
+                // Don't care; ignore, and don't generate an instruction.
+                //continue;
+                break;
+
             case INT_GOTO:
             case INT_GOSUB:
             case INT_RETURN:
                 // TODO
-                break;
+                //break;
 
             //case INT_EEPROM_BUSY_CHECK:
             case INT_EEPROM_READ:
@@ -224,10 +236,10 @@ void CompileInterpreted(const char *outFile)
             case INT_SPI_WRITE: ///// Added by JG
             case INT_I2C_READ:  /////
             case INT_I2C_WRITE: /////
-                                //            case INT_UART_SEND:
+            //case INT_UART_SEND:
             case INT_UART_SEND1:
-                //            case INT_UART_SENDn:
-                //            case INT_UART_RECV:
+            //case INT_UART_SENDn:
+            //case INT_UART_RECV:
             case INT_UART_SEND_BUSY:
             case INT_UART_SEND_READY:
             case INT_UART_RECV_AVAIL:
@@ -251,15 +263,15 @@ void CompileInterpreted(const char *outFile)
 
     fprintf(f, "$$bits\n");
     for(int i = 0; i < InternalRelaysCount; i++) {
-        if(InternalRelays[i][0] != '$') {
+        //if(InternalRelays[i][0] != '$') {
             fprintf(f, "%s,%d\n", InternalRelays[i], i);
-        }
+        //}
     }
     fprintf(f, "$$int16s\n");
     for(int i = 0; i < VariablesCount; i++) {
-        if(Variables[i][0] != '$') {
+        //if(Variables[i][0] != '$') {
             fprintf(f, "%s,%d\n", Variables[i], i);
-        }
+        //}
     }
 
     fprintf(f, "$$cycle %lld us\n", Prog.cycleTime);
